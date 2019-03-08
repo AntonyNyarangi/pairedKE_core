@@ -2,7 +2,7 @@ let Patients = function(patient) {
   this.bloodType = patient.bloodType;
   this.age = patient.age;
   this.weight = patient.weight;
-  this.height = patient.height;  
+  this.height = patient.height;
 };
 Patients.registerPatient = function registerPatient(newPatient, result) {
   connection.query(`insert into patients set ?`, newPatient, function(
@@ -14,9 +14,9 @@ Patients.registerPatient = function registerPatient(newPatient, result) {
       result(err, null);
     } else {
       console.log(res.insertId);
-      result(null, res.insertId);
+      res.message = "Patient created successfully. Patient ID: " + res.insertId;
+      result(null, res.message);
     }
-    id;
   });
 };
 
@@ -33,19 +33,18 @@ Patients.getAllPatients = function getAllPatients(result) {
 };
 
 Patients.getPatientByID = function getPatientByID(patientID, result) {
-  connection.query(
-    `select * from patients where id = ?`,
-    patientID,
-    function(err, res) {
-      if (err) {
-        console.log("error: ", err);
-        result(err, null);
-      } else {
-        console.log("patient: ", res);
-        result(null, res);
-      }
+  connection.query(`select * from patients where id = ?`, patientID, function(
+    err,
+    res
+  ) {
+    if (err) {
+      console.log("error: ", err);
+      result(err, null);
+    } else {
+      console.log("patient: ", res);
+      result(null, res);
     }
-  );
+  });
 };
 
 Patients.updatePatientByID = function updatePatientByID(
@@ -54,9 +53,8 @@ Patients.updatePatientByID = function updatePatientByID(
   result
 ) {
   connection.query(
-    `update patients set patient = ? where id = ?`,
+    `update patients set ? where id = ` + patientID,
     patient,
-    patientID,
     function(err, res) {
       if (err) {
         console.log("error: ", err);
@@ -78,7 +76,8 @@ Patients.removePatientByID = function removePatientByID(patientID, result) {
       console.log("error: ", err);
       result(err, null);
     } else {
-      console.log("patient has been deleted");
+      console.log("Patient has been deleted");
+      res.message = "Patient record has been removed"
       result(null, res);
     }
   });

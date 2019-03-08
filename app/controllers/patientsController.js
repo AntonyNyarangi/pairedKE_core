@@ -30,15 +30,16 @@ exports.getPatientByID = function(req, res) {
 };
 
 exports.updatePatientByID = function(req, res) {
-  Patients.updatePatientByID(new Patients(req.body), req.params.patientID, function(
-    err,
-    patient
-  ) {
-    if (err) {
-      res.send(err);
+  Patients.updatePatientByID(
+    new Patients(req.body),
+    req.params.patientID,
+    function(err, patient) {
+      if (err) {
+        res.send(err);
+      }
+      res.json(patient);
     }
-    res.json(patient);
-  });
+  );
 };
 
 exports.removePatientByID = function(req, res) {
@@ -46,6 +47,6 @@ exports.removePatientByID = function(req, res) {
     if (err) {
       res.send(err);
     }
-    res.json({ message: "Patient deleted successfully" });
+    res.json(patient);
   });
 };

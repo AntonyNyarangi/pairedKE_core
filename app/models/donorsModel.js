@@ -29,9 +29,9 @@ Donors.registerDonor = function registerDonor(newDonor, result) {
       result(err, null);
     } else {
       console.log(res.insertId);
-      result(null, res.insertId);
+      res.message = "Patient created successfully. Patient ID: " + res.insertId;
+      result(null, res.message);
     }
-    id;
   });
 };
 
@@ -64,9 +64,8 @@ Donors.getDonorByID = function getDonorByID(donorID, result) {
 
 Donors.updateDonorByID = function updateDonorByID(donor, donorID, result) {
   connection.query(
-    `update donors set donor = ? where id = ?`,
+    `update donors set = ? where id = ` + donorID,
     donor,
-    donorID,
     function(err, res) {
       if (err) {
         console.log("error: ", err);
@@ -89,6 +88,7 @@ Donors.removeDonorByID = function removeDonorByID(donorID, result) {
       result(err, null);
     } else {
       console.log("donor has been deleted");
+      res.message = "Donor record has been removed"
       result(null, res);
     }
   });

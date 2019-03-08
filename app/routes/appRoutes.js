@@ -1,6 +1,4 @@
-// const express = require("express");
-// const router = express.Router();
-// let patients = require("../controllers/patientsController");
+
 let donors = require("../controllers/donorsController");
 let patients = require("../controllers/patientsController");
 
@@ -29,6 +27,3 @@ module.exports = function(app) {
     .put(donors.updateDonorByID)
     .delete(donors.removeDonorByID);
 };
-
-// module.exports = router;
-// };

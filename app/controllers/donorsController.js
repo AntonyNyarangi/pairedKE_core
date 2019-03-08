@@ -46,6 +46,6 @@ exports.removeDonorByID = function(req, res) {
     if (err) {
       res.send(err);
     }
-    res.json({ message: "Donor deleted successfully" });
+    res.json(donor);
   });
 };

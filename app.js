@@ -2,9 +2,7 @@ var express = require('express')
 var app = express()
 var bodyParser = require('body-parser');
 
-port = process.env.PORT || 4002;
-
-
+port = process.env.PORT || 3001;
 
 
 let database = require("./app/models/database");
