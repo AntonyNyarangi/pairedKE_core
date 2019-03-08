@@ -1,3 +1,9 @@
+let Patients = function(patient) {
+  this.bloodType = patient.bloodType;
+  this.age = patient.age;
+  this.weight = patient.weight;
+  this.height = patient.height;  
+};
 Patients.registerPatient = function registerPatient(newPatient, result) {
   connection.query(`insert into patients set ?`, newPatient, function(
     err,

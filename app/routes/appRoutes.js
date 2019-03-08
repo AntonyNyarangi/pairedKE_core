@@ -2,22 +2,22 @@
 // const router = express.Router();
 // let patients = require("../controllers/patientsController");
 let donors = require("../controllers/donorsController");
-
-// // patient Routes
-// router
-//   .route("/patients")
-//   .get(patients.getAllPatients)
-//   .post(patients.registerPatient);
-
-// router
-//   .route("/patients/:patientID")
-//   .get(patients.getPatientByID)
-//   .put(patients.updatePatientByID)
-//   .delete(patients.removePatientByID);
-
-// donor routes
+let patients = require("../controllers/patientsController");
 
 module.exports = function(app) {
+  // patient Routes
+  app
+    .route("/api/patients")
+    .get(patients.getAllPatients)
+    .post(patients.registerPatient);
+
+  app
+    .route("/api/patients/:patientID")
+    .get(patients.getPatientByID)
+    .put(patients.updatePatientByID)
+    .delete(patients.removePatientByID);
+
+  // donor routes
   app
     .route("/api/donors")
     .get(donors.getAllDonors)
