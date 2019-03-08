@@ -1,0 +1,16 @@
+{
+  "name": "pairedke_core",
+  "version": "1.0.0",
+  "description": "paired kidney exchange network - core",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Antony Nyarangi",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.16.4",
+    "json-rules-engine": "^2.3.3",
+    "mysql": "^2.16.0"
+  }
+}
