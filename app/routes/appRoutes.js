@@ -1,6 +1,6 @@
-
 let donors = require("../controllers/donorsController");
 let patients = require("../controllers/patientsController");
+let users = require("../controllers/usersController");
 
 module.exports = function(app) {
   // patient Routes
@@ -26,4 +26,16 @@ module.exports = function(app) {
     .get(donors.getDonorByID)
     .put(donors.updateDonorByID)
     .delete(donors.removeDonorByID);
+  // user routes
+  app
+    .route("/api/users")
+    .get(users.getAllUsers)
+    .post(users.registerUser);
+  app
+    .route("/api/users/:userID")
+    .get(users.getUserByID)
+    .put(users.updateUserByID)
+    .delete(users.removeUserByID);
+  app.route("/api/users/login/").post(users.login);
+  app.route("/api/users/logout/:userID").post(users.logout);
 };

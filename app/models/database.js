@@ -57,10 +57,10 @@ module.exports = {
       id int primary key auto_increment,
       firstName varchar(30),
       lastName varchar(30),
-      emailAddress varchar(30),
+      email varchar(30),
       phoneNumber int(9),
-      username varchar(15),
-      password varchar(50)    
+      username varchar(30),
+      password varchar(100)    
     )`;
     //create patients table
     connection.query(createPatientsTable, function(err) {

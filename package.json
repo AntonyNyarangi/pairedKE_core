@@ -9,6 +9,7 @@
   "author": "Antony Nyarangi",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^3.0.4",
     "express": "^4.16.4",
     "json-rules-engine": "^2.3.3",
     "mysql": "^2.16.0"
