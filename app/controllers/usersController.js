@@ -4,7 +4,7 @@ exports.getAllUsers = function(req, res) {
   Users.getAllUsers(function(err, users) {
     if (err) {
       res.send(err);
-      console.log("res: ", users);
+      console.log("res: ", err);
     }
     res.send(users);
   });

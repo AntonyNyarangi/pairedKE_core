@@ -14,7 +14,7 @@ exports.getAllPatients = function(req, res) {
   Patients.getAllPatients(function(err, patients) {
     if (err) {
       res.send(err);
-      console.log("res", patients);
+      console.log("res", err);
     }
     res.send(patients);
   });

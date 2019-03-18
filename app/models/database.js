@@ -62,6 +62,21 @@ module.exports = {
       username varchar(30),
       password varchar(100)    
     )`;
+    const createHealthFacilitiesTable = `create table if not exists health_facilities(
+      id int primary key auto_increment,
+      name varchar(30),
+      locationLat decimal(9,6),
+      locationLng decimal(9,6),
+      kephLevel int(1),
+      mflCode int(5)
+    )`;
+    const createCasesTable = `create table if not exists cases(
+      id int primary key auto_increment,
+      donorID int(10),
+      patientID int(10),
+      referringDoctorID int(10)
+    )`;
+
     //create patients table
     connection.query(createPatientsTable, function(err) {
       if (err) {
@@ -76,12 +91,26 @@ module.exports = {
       }
       console.log("Created donors table");
     });
+    //create health facilities table
+    connection.query(createHealthFacilitiesTable, function(err) {
+      if (err) {
+        console.log(err.message);
+      }
+      console.log("Created health facilities table");
+    });
     //create users table
     connection.query(createUsersTable, function(err) {
       if (err) {
         console.log(err.message);
       }
       console.log("Created users table");
+    });
+    //create cases table
+    connection.query(createCasesTable, function(err) {
+      if (err) {
+        console.log(err.message);
+      }
+      console.log("Created cases table");
     });
   }
 };
