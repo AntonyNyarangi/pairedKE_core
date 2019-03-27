@@ -1,3 +1,4 @@
+let Matching = require("./matching");
 let Donors = function(donor) {
   this.bloodType = donor.bloodType;
   this.age = donor.age;
@@ -88,12 +89,18 @@ Donors.removeDonorByID = function removeDonorByID(donorID, result) {
       result(err, null);
     } else {
       console.log("donor has been deleted");
-      res.message = "Donor record has been removed"
+      res.message = "Donor record has been removed";
       result(null, res);
     }
   });
 };
 
-Donors.getDonorMatches = function getDonorMatches(donorID, result) {};
+Donors.getDonorMatches = function getDonorMatches(donorID, result) {
+  let patients = Matching.bloodGroup("AB").then(patients => {
+    console.log("the values are:", patients);
+  });
+  console.log("model", patients);
+  result(patients);
+};
 
 module.exports = Donors;

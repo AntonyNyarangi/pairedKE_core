@@ -49,3 +49,13 @@ exports.removeDonorByID = function(req, res) {
     res.json(donor);
   });
 };
+
+exports.getDonorMatchesByID = function(req, res) {
+  Donors.getDonorMatches(req.params.donorID, function(err, patients) {
+    if (err) {
+      res.send(err);
+    }
+    res.json(patients);
+  });
+};
+
