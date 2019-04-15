@@ -95,12 +95,11 @@ Donors.removeDonorByID = function removeDonorByID(donorID, result) {
   });
 };
 
-Donors.getDonorMatches = function getDonorMatches(donorID, result) {
-  let patients = Matching.bloodGroup("AB").then(patients => {
-    console.log("the values are:", patients);
+Donors.getDonorMatches = async function getDonorMatches(donorID, matchedPatients) {
+  Matching.bloodGroup(donorID, function(res) {
+    console.log("test",res);
+    matchedPatients(res);
   });
-  console.log("model", patients);
-  result(patients);
 };
 
 module.exports = Donors;
