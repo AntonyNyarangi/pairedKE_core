@@ -9,6 +9,7 @@
   "author": "Antony Nyarangi",
   "license": "ISC",
   "dependencies": {
+    "africastalking": "^0.4.0",
     "bcrypt": "^3.0.4",
     "cors": "^2.8.5",
     "express": "^4.16.4",
