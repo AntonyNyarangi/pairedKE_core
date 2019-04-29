@@ -97,7 +97,7 @@ Donors.removeDonorByID = function removeDonorByID(donorID, result) {
 
 Donors.getDonorMatches = async function getDonorMatches(donorID, matchedPatients) {
   Matching.bloodGroup(donorID, function(res) {
-    console.log("test",res);
+    console.log("Sorted Reipients",res);
     matchedPatients(res);
   });
 };
