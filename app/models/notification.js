@@ -1,8 +1,8 @@
-const options = {
+const credentials = {
   apiKey: "4ba11d7dbc8848511ca38760c73cc7f126611acedd728218c93684467e49a2dc", // use your sandbox app API key for development in the test environment
   username: "sandbox" // use 'sandbox' for development in the test environment
 };
-const Africastalking = require("africastalking")(options);
+const Africastalking = require("africastalking")(credentials);
 
 // Initialize a service e.g. SMS
 sms = Africastalking.SMS;
