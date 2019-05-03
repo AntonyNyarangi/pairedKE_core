@@ -23,14 +23,17 @@ module.exports = {
     // patient table definition
     const createPatientsTable = `create table if not exists patients(
       id int primary key auto_increment,
+      caseID int(10),
       bloodType enum('O', 'A', 'B', 'AB'),
       age int(3),
       weight int(3),
-      height int(3)
+      height int(3),
+      created_at timestamp default current_timestamp
     )`;
     //donor table definition
     const createDonorsTable = `create table if not exists donors(
       id int primary key auto_increment,
+      caseID int(10),
       bloodType enum('O', 'A', 'B', 'AB'),
       age int(3),
       weight int(3),
@@ -51,7 +54,8 @@ module.exports = {
       infectionHepatitisC tinyint(1) default 0,
       infectionHIV tinyint(1) default 0,
       medicalInsurance tinyint(1) default 0,
-      historyBloodClots tinyint(1) default 0
+      historyBloodClots tinyint(1) default 0,
+      created_at timestamp default current_timestamp
     )`;
     const createUsersTable = `create table if not exists users(
       id int primary key auto_increment,
@@ -60,7 +64,9 @@ module.exports = {
       email varchar(30),
       phoneNumber int(9),
       username varchar(30),
-      password varchar(100)    
+      healthFacilityID int(10),
+      password varchar(100),
+      created_at timestamp default current_timestamp   
     )`;
     const createHealthFacilitiesTable = `create table if not exists health_facilities(
       id int primary key auto_increment,
@@ -68,13 +74,13 @@ module.exports = {
       locationLat decimal(9,6),
       locationLng decimal(9,6),
       kephLevel int(1),
-      mflCode int(5)
+      mflCode int(5),
+      created_at timestamp default current_timestamp
     )`;
     const createCasesTable = `create table if not exists cases(
       id int primary key auto_increment,
-      donorID int(10),
-      patientID int(10),
-      referringDoctorID int(10)
+      doctorID int(10),
+      created_at timestamp default current_timestamp
     )`;
 
     //create patients table

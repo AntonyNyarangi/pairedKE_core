@@ -41,6 +41,7 @@ module.exports = function(app) {
     .put(donors.updateDonorByID)
     .delete(donors.removeDonorByID);
   app.route("/api/donors/getMatches/:donorID").get(donors.getDonorMatchesByID);
+  
   // case routes
   app
     .route("/api/cases")
@@ -52,6 +53,7 @@ module.exports = function(app) {
     .get(cases.getCaseByID)
     .put(cases.updateCaseByID)
     .delete(cases.removeCaseByID);
+
   // user routes
   app
     .route("/api/users")

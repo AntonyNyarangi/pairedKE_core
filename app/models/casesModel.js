@@ -1,8 +1,9 @@
+// let Patients = require("../models/patientsModel");
+// let Donors = require("../models/donorsModel");
 let Cases = function(newCase) {
-  this.donorID = newCase.donorID;
-  this.patientID = newCase.patientID;
   this.referringDoctorID = newCase.referringDoctorID;
 };
+
 Cases.createCase = function createCase(newCase, result) {
   connection.query(`insert into cases set ?`, newCase, function(err, res) {
     if (err) {
