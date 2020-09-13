@@ -1,9 +1,15 @@
 let HealthFacilities = function(facility) {
-  this.name = facility.name;
+  this.mflCode = facility.mflCode;
+  this.officialName = facility.officialName;
+  this.kephLevel = facility.kephLevel;
+  this.facilityType = facility.facilityType;
+  this.regulatoryBody = facility.regulatoryBody;
+  this.county = facility.county;
+  this.constituency = facility.constituency;
+  this.subCounty = facility.subCounty;
+  this.ward = facility.ward;
   this.locationLat = facility.locationLat;
   this.locationLng = facility.locationLng;
-  this.kephLevel = facility.kephLevel;
-  this.mflCode = facility.mflCode;
 };
 HealthFacilities.registerHealthFacility = function registerHealthFacility(newFacility, result) {
   connection.query(`insert into health_facilities set ?`, newFacility, function(
@@ -14,7 +20,6 @@ HealthFacilities.registerHealthFacility = function registerHealthFacility(newFac
       console.log("error: ", err);
       result(err, null);
     } else {
-      console.log(res.insertId);
       res.message = "Health Facility created successfully. Facility ID: " + res.insertId;
       result(null, res.message);
     }

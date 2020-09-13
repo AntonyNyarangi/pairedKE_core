@@ -1,4 +1,7 @@
 const bcrypt = require("bcrypt");
+const passport = require("passport");
+const transporter = require("./../utils/mail").transporter();
+
 
 let Users = function(user) {
   this.firstName = user.firstName;
@@ -6,18 +9,35 @@ let Users = function(user) {
   this.email = user.email;
   this.phoneNumber = user.phoneNumber;
   this.username = user.username;
+  this.healthFacilityID = user.healthFacilityID;
   this.password = bcrypt.hashSync(user.password, 10);
 };
 
 Users.registerUser = function registerUser(newUser, result) {
-  connection.query(`insert into users set ?`, newUser, function(err, res) {
+  connection.query(`insert into users set ?`, newUser, async function(err, res) {
     if (err) {
       console.log("error: ", err);
       result(err, null);
     } else {
       console.log(res.insertId);
-      res.message = "User created successfully. Patient ID: " + res.insertId;
-      result(null, res.insertId);
+      res.message = "User created successfully. User ID: " + res.insertId;
+
+      var mailOptions = {
+        from: process.env.SMTP_USER,
+        to: newUser.email,
+        subject: "Account Created Successfully",
+        text: `Hello ${newUser.firstName} ${newUser.lastName} we have successfully created your account on Paired Kidney Exchange.`,
+        template: "new_account",
+        context: {
+          firstName: newUser.firstName,
+          lastName: newUser.lastName,
+          email:newUser.email
+        },
+      };
+
+      // var response = await transporter.sendMail(mailOptions);
+      // console.log(response);
+      result(null, res.message);
     }
   });
 };
@@ -79,30 +99,6 @@ Users.getAllUsers = function getAllUsers(result) {
       } else {
         console.log("users: ", res);
         result(null, res);
-      }
-    }
-  );
-};
-
-Users.login = function login(username, password, result) {
-  connection.query(
-    `select * from users where username = ? or email = '` + username + "'",
-    username,
-    function(err, res) {
-      if (err) {
-        // console.log("error: ", err);
-        result(err, null);
-      } else {
-        console.log(res);
-
-        if (bcrypt.compareSync(password, res[0].password)) {
-          delete res[0].password;
-          result.message = "User logged in successfully";
-          result(null, res);
-        } else {
-          const message = "Incorrect credentials";
-          result(null, message);
-        }
       }
     }
   );

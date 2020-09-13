@@ -1,9 +1,9 @@
 let mysql = require("mysql");
 let connection = mysql.createConnection({
-  host: "35.239.64.246",
+  host: "127.0.0.1",
   user: "root",
-  password: "nsureafrica",
-  database: "one"
+  password: "password",
+  database: "paired_ke"
 });
 let database = require("./database");
 
@@ -66,15 +66,24 @@ module.exports = {
       username varchar(30),
       healthFacilityID int(10),
       password varchar(100),
+      isEnabled boolean,
+      isVerified boolean,
+      isAdmin boolean,
       created_at timestamp default current_timestamp   
     )`;
     const createHealthFacilitiesTable = `create table if not exists health_facilities(
       id int primary key auto_increment,
-      name varchar(30),
+      mflCode int(5),
+      officialName varchar(255),
+      kephLevel varchar(30),
+      facilityType varchar(30),
+      regulatoryBody varchar(30),
+      county varchar(30),
+      constituency varchar(30),
+      subCounty varchar(30),
+      ward varchar(30),
       locationLat decimal(9,6),
       locationLng decimal(9,6),
-      kephLevel int(1),
-      mflCode int(5),
       created_at timestamp default current_timestamp
     )`;
     const createCasesTable = `create table if not exists cases(
