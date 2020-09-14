@@ -1,4 +1,6 @@
 let Patients = function(patient) {
+  this.patientName = patient.patientName,
+  this.idNumber = patient.idNumber,
   this.bloodType = patient.bloodType;
   this.age = patient.age;
   this.weight = patient.weight;
@@ -14,8 +16,8 @@ Patients.registerPatient = function registerPatient(newPatient, result) {
       result(err, null);
     } else {
       console.log(res.insertId);
-      res.message = "Patient created successfully. Patient ID: " + res.insertId;
-      result(null, res.message);
+      res.message = "Patient created successfully.";
+      result(null, {message:res.message, id:res.insertId});
     }
   });
 };

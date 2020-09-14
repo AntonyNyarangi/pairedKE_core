@@ -70,10 +70,23 @@ exports.login = async (req, res, next) => {
         if (!user) {
           res.status(401).send({ message, user });
         } else {
-          delete user.password;
-          delete user.id;
-          var token = jwt.sign(user);
-          res.status(200).send({ message, token });
+          connection.query(
+            `select officialName as healthFacility_officialName, facilityType, county, constituency, subCounty, ward, locationLat, locationLng, mflCode from health_facilities where health_facilities.id=${user.healthFacilityID}`,
+            function (err, facilities) {
+              if (err) {
+                console.log(err);
+              } else {
+                console.log(facilities);
+                var healthFacility = JSON.parse(JSON.stringify(facilities[0]));
+                delete user.password;
+                delete user.id;
+                user.healthFacility = healthFacility;
+                var token = jwt.sign(user);
+                console.log(jwt.verify(token));
+                res.status(200).send({ message, token });
+              }
+            }
+          );
         }
       }
     )(req, res, next);

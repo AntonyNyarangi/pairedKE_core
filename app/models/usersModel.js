@@ -11,6 +11,9 @@ let Users = function(user) {
   this.username = user.username;
   this.healthFacilityID = user.healthFacilityID;
   this.password = bcrypt.hashSync(user.password, 10);
+  this.isAdmin = user.isAdmin || false;
+  this.isEnabled = false;
+  this.isVerified = false;
 };
 
 Users.registerUser = function registerUser(newUser, result) {
@@ -37,7 +40,7 @@ Users.registerUser = function registerUser(newUser, result) {
 
       // var response = await transporter.sendMail(mailOptions);
       // console.log(response);
-      result(null, res.message);
+      result(null, {message:res.message, id:res.insertId});
     }
   });
 };

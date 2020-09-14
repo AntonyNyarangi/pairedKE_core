@@ -1,7 +1,7 @@
 let Cases = require("../models/casesModel");
 
 exports.getAllCases = function(req, res) {
-  Cases.getAllCases(function(err, cases) {
+  Cases.getAllCases(req.query,function(err, cases) {
     if (err) {
       res.send(err);
       console.log("res", err);

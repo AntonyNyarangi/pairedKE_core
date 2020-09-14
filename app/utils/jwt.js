@@ -4,15 +4,15 @@ const jwt = require("jsonwebtoken");
 // const privateKey = fs.readFileSync("./private.key", "utf8");
 // const publicKey = fs.readFileSync("./public.key", "utf8");
 const privateKey = fs.readFileSync(
-  path.join(__dirname, "../../jwtRS256.key"),
+  path.join(__dirname, "../../rsa_private.key"),
   "utf8"
 );
-const publicKey = fs.readFileSync(path.join(__dirname, "../../jwtRS256.key.pub"), "utf8");
+const publicKey = fs.readFileSync(path.join(__dirname, "../../rsa_public.key"), "utf8");
 const options = {
-  // issuer: options.issuer,
+  issuer: "PairedKE",
   // subject: options.subject,
   // audience: options.audience,
-  expiresIn: "12h",
+  expiresIn: "1h",
   algorithm: "RS256"
 };
 

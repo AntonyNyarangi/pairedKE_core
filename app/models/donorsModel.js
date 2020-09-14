@@ -1,5 +1,7 @@
 let Matching = require("./matching");
 let Donors = function(donor) {
+  this.donorName = donor.donorName,
+  this.idNumber = donor.idNumber,
   this.bloodType = donor.bloodType;
   this.age = donor.age;
   this.weight = donor.weight;
@@ -8,13 +10,11 @@ let Donors = function(donor) {
   this.illicitDrugUse = donor.illicitDrugUse;
   this.highBloodPressure = donor.highBloodPressure;
   this.diabetes = donor.diabetes;
-  this.historyDiabetes = donor.historyDiabetes;
   this.kidneyDiseasePKD = donor.kidneyDiseasePKD;
   this.kidneyFunction = donor.kidneyFunction;
   this.psychiatricIllness = donor.psychiatricIllness;
   this.heartDisease = donor.heartDisease;
   this.untreatedCancer = donor.untreatedCancer;
-  this.historyUntreatedCancer = donor.historyUntreatedCancer;
   this.urineProtein = donor.urineProtein;
   this.infectionHepatitisB = donor.infectionHepatitisB;
   this.infectionHepatitisC = donor.infectionHepatitisC;
@@ -30,8 +30,8 @@ Donors.registerDonor = function registerDonor(newDonor, result) {
       result(err, null);
     } else {
       console.log(res.insertId);
-      res.message = "Patient created successfully. Patient ID: " + res.insertId;
-      result(null, res.message);
+      res.message = "Patient created successfully.";
+      result(null, {message:res.message, id:res.insertId});
     }
   });
 };
