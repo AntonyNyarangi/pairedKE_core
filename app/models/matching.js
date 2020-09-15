@@ -1,38 +1,146 @@
+const util = require("util");
+const query = util.promisify(connection.query).bind(connection);
+
+var donorPool;
+var patientPool;
+
 module.exports = {
-  bloodGroup: function(donorID, callback) {
-    matchedPatients = [];
-    connection.query(`select * from donors where id = ?`, donorID, function(
-      err,
-      res
-    ) {
-      if (err) throw err;
-      // console.log(res[0].bloodType);
-      donor = res[0];
-      let recepientBloodGroups = getRecipientBloodGroups(donor.bloodType);
-      console.log("recipient bloodgroups", recepientBloodGroups);
-      getPatientsByBloodGroup(recepientBloodGroups, function(res) {
-        matchedPatients = res;
-        filteredMatches = filterRecipientSet(donor, matchedPatients);
-        // console.log("Response", filteredMatches);
-        return callback(filteredMatches);
+  ke_chain: async function (callback) {
+    try {
+      // step 1. get all donors from DB (donor pool)
+      donorPool = JSON.parse(
+        JSON.stringify(await query(`select * from donors`))
+      );
+
+      // step 2. get all patients from DB (patient pool)
+      patientPool = JSON.parse(
+        JSON.stringify(await query(`select * from patients`))
+      );
+
+      // get all directed pairs
+      var directedMatches = await directedPairExchange();
+
+      // get all closed chains
+      var closedChain = await createClosedChain();
+
+      // get all domino chains
+      var dominoChain = [];
+
+      return callback({
+        directedMatches: directedMatches,
+        closedChain: closedChain,
+        dominoChain: dominoChain,
       });
-    });
-  }
+    } catch (err) {
+      console.log(err);
+    }
+
+    //     return callback(filteredMatches);
+  },
 };
 
-function getPatientsByBloodGroup(bloodGroups, callback) {
-  queryParameters = `"${bloodGroups[0]}"`;
-  for (i = 1, length = bloodGroups.length; i < length; i++) {
-    queryParameters = queryParameters + ` or bloodType = "${bloodGroups[i]}"`;
-  }
-  // console.log(queryParameters);
-  connection.query(
-    `select * from patients where bloodType = ${queryParameters}`,
-    function(err, res) {
-      if (err) throw err;
-      return callback(res);
+async function directedPairExchange() {
+  var directedMatches = [];
+  // loop through the pool and find matching pairs
+  for (const donor of donorPool) {
+    // get best match
+    var bestMatch = getDonorRecipient(donor);
+    if (bestMatch) {
+      // check if the donor and patient belong to the same case
+      const donorCaseResults = JSON.parse(
+        JSON.stringify(
+          await query(`select * from cases where cases.donorID=${donor.id}`)
+        )
+      );
+      const donorCase = donorCaseResults[0];
+
+      if (donorCase.patientID === bestMatch.recipient.id) {
+        directedMatches.push({
+          donor: donor,
+          patient: bestMatch.recipient,
+          donorCase: donorCase,
+          patientCase: donorCase,
+        });
+
+        // remove the donor from pool
+        donorPool = donorPool.filter((donor) => {
+          return donor.id !== donor.id;
+        });
+
+        // remove patient from pool
+        patientPool = patientPool.filter((patient) => {
+          return patient.id !== bestMatch.recipient.id;
+        });
+      }
     }
-  );
+  }
+  return directedMatches;
+}
+
+function getDonorRecipient(donor) {
+  const recipientBloodGroups = getRecipientBloodGroups(donor.bloodType);
+  const matchedPatients = getPatientsByBloodGroup(recipientBloodGroups);
+  const bestMatchArr = filterRecipientSet(donor, matchedPatients);
+  if (bestMatchArr.length > 0) {
+    return bestMatchArr[0];
+  } else return false;
+}
+
+async function createClosedChain() {
+  var closedChain = [];
+  // for each donor in the pool, get best match
+  for (const donor of donorPool) {
+    // extract donor case
+    const donorCaseResults = JSON.parse(
+      JSON.stringify(
+        await query(`select * from cases where cases.donorID=${donor.id}`)
+      )
+    );
+    if (donorCaseResults.length > 0) {
+      const donorCase = donorCaseResults[0];
+      // get best match
+      var bestMatch = getDonorRecipient(donor);
+      if (bestMatch) {
+        // extract patient case
+        const bestMatchCase = JSON.parse(
+          JSON.stringify(
+            await query(
+              `select * from cases where cases.patientID=${bestMatch.recipient.id}`
+            )
+          )
+        );
+        const patientCase = bestMatchCase[0];
+
+        // add to chain
+        closedChain.push({
+          donor: donor,
+          patient: bestMatch.recipient,
+          donorCase: donorCase,
+          patientCase: patientCase,
+        });
+
+        // remove the donor from pool
+        donorPool = donorPool.filter((donor) => {
+          return donor.id !== donor.id;
+        });
+        // remove patient from pool
+        patientPool = patientPool.filter((patient) => {
+          return patient.id !== bestMatch.recipient.id;
+        });
+      }
+    }
+  }
+  return closedChain;
+}
+
+async function createOpenChain() {}
+
+function getPatientsByBloodGroup(bloodGroups) {
+  return patientPool.filter((patient) => {
+    for (bloodGroup of bloodGroups) {
+      return patient.bloodType === bloodGroup;
+    }
+  });
 }
 
 function getRecipientBloodGroups(donorBloodGroup) {
@@ -67,7 +175,7 @@ function filterRecipientSet(donor, recipientSet) {
   for (i = 0; i < recipientSet.length; i++) {
     recipientDistaceSet.push({
       recipient: recipientSet[i],
-      distance: distances[i]
+      distance: distances[i],
     });
   }
 
@@ -75,7 +183,7 @@ function filterRecipientSet(donor, recipientSet) {
   recipientDistaceSet = sortRecipientSet(recipientDistaceSet);
 
   // return recipients set
-  return recipientDistaceSet.slice(0, 3);
+  return recipientDistaceSet.slice(0, 1);
 }
 
 function calculateDistance(donor, recipient) {
