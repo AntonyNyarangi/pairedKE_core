@@ -17,7 +17,6 @@ Cases.createCase = function createCase(newCase, result) {
       console.log("error: ", err);
       result(err, null);
     } else {
-      console.log(res.insertId);
       res.message = "Case created successfully. case ID: " + res.insertId;
       result(null, res.message);
     }
@@ -25,8 +24,6 @@ Cases.createCase = function createCase(newCase, result) {
 };
 
 Cases.getAllCases = function getAllCases(params, result) {
-  console.log(params, "params");
-  console.log(params.state)
   connection.query(
     `select * from cases inner join patients on cases.patientID=patients.id inner join donors on cases.donorID=donors.id inner join health_facilities on cases.healthFacilityID=health_facilities.id ${
       Object.keys(params).length > 0

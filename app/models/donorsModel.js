@@ -96,7 +96,6 @@ Donors.removeDonorByID = function removeDonorByID(donorID, result) {
 };
 
 Donors.getDonorMatches = async function getDonorMatches(donorID, matchedPatients) {
-  console.log(donorID)
   Matching.ke_chain(function(res) {
     // console.log("Sorted Recipients",res);
     matchedPatients(res);
