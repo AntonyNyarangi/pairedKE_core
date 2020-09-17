@@ -21,6 +21,7 @@ let Donors = function(donor) {
   this.infectionHIV = donor.infectionHIV;
   this.medicalInsurance = donor.medicalInsurance;
   this.historyBloodClots = donor.historyBloodClots;
+  this.isAltruistic = donor.isAltruistic;
 };
 
 Donors.registerDonor = function registerDonor(newDonor, result) {

@@ -7,23 +7,39 @@ var patientPool;
 var closedChain = [];
 var closedChains = [];
 var dominoChain = [];
+var dominoChains = [];
+var altruisticDonorPool = [];
 
 module.exports = {
   ke_chain: async function (callback) {
+    console.log(new Date().toISOString());
     try {
       // step 1. get all donors from DB (donor pool)
       donorPool = JSON.parse(
-        JSON.stringify(await query(`select * from donors`))
+        JSON.stringify(await query(`select * from donors where isAltruistic=0`))
       );
 
       // step 2. get all patients from DB (patient pool)
       patientPool = JSON.parse(
         JSON.stringify(await query(`select * from patients`))
       );
-      console.log(donorPool.length, patientPool.length, "initial pools");
+
+      altruisticDonorPool = JSON.parse(
+        JSON.stringify(await query(`select * from donors where isAltruistic=1`))
+      );
+
+      console.log(
+        donorPool.length,
+        patientPool.length,
+        altruisticDonorPool.length,
+        "initial pools size"
+      );
 
       // get all directed pairs
       var directedMatches = await directedPairExchange();
+
+      console.log(directedMatches.length, "directed matches");
+
       for (const donorPair of directedMatches) {
         // remove the donor from pool
         donorPool = donorPool.filter((poolDonor) => {
@@ -38,13 +54,15 @@ module.exports = {
       console.log(
         donorPool.length,
         patientPool.length,
-        "pools after directed matching"
+        altruisticDonorPool.length,
+        "pools size after directed matching"
       );
 
       // get longest closed chain
       for (const donor of donorPool) {
         await createClosedChain(donor, donorPool, patientPool);
       }
+
       var longestClosedChain = [];
       for (const chain of closedChains) {
         if (chain.length > longestClosedChain.length) {
@@ -62,17 +80,64 @@ module.exports = {
           return poolPatient.id !== donorPair.patient.id;
         });
       }
-      console.log(directedMatches.length, "directed matches");
+
       console.log(longestClosedChain.length, "longest closed chain");
-      console.log(donorPool.length, patientPool.length);
+      console.log(
+        donorPool.length,
+        patientPool.length,
+        altruisticDonorPool.length,
+        "pools size after closed chaining"
+      );
 
       // get all domino chains
-      var dominoChain = [];
 
+      // get altruistic donors from db
+      // step 2. get all patients from DB (patient pool)
+
+      var longestDominoChain = [];
+      for (const donor of altruisticDonorPool) {
+        await createDominoChain(donor, donorPool, patientPool);
+      }
+
+      for (chain of dominoChains) {
+        if (chain.length > longestDominoChain.length) {
+          longestDominoChain = chain;
+        }
+      }
+
+      if (longestDominoChain.length > 0) {
+        // remove the altruistic donor from pool
+        altruisticDonorPool = altruisticDonorPool.filter((poolDonor) => {
+          return poolDonor.id !== longestDominoChain[0].donor.id;
+        });
+        // remove donors and patients from respective pools
+        for (let i = 0; i < longestDominoChain.length; i++) {
+          // remove the donor from pool
+          donorPool = donorPool.filter((poolDonor) => {
+            return poolDonor.id !== longestDominoChain[i].donor.id;
+          });
+
+          // remove patient from pool
+          patientPool = patientPool.filter((poolPatient) => {
+            return poolPatient.id !== longestDominoChain[i].patient.id;
+          });
+        }
+      }
+
+      console.log(longestDominoChain.length, "longest domino chain");
+      console.log(
+        donorPool.length,
+        patientPool.length,
+        altruisticDonorPool.length,
+        "pools size after domino chaining"
+      );
+
+      console.log(new Date().toISOString());
+      
       return callback({
         directedMatches: directedMatches,
         closedChain: longestClosedChain,
-        dominoChain: dominoChain,
+        dominoChain: longestDominoChain,
       });
     } catch (err) {
       console.log(err);
@@ -128,17 +193,14 @@ async function directedPairExchange() {
 
 async function getDonorRecipient(donor, poolP) {
   const recipientBloodGroups = await getRecipientBloodGroups(donor.bloodType);
-  // console.log(recipientBloodGroups, "blood groups")
   const matchedPatients = await getPatientsByBloodGroup(
     recipientBloodGroups,
     poolP
   );
-  // console.log(matchedPatients, "matched patients")
   var bestMatchArr = [];
   if (matchedPatients.length > 0) {
     bestMatchArr = await filterRecipientSet(donor, matchedPatients);
   }
-  // console.log(bestMatchArr, "best match arr")
   if (bestMatchArr.length > 0) {
     return bestMatchArr[0];
   } else return false;
@@ -187,7 +249,6 @@ async function createClosedChain(donor, poolOfDonors, poolOfPatients) {
 
         if (closedChain.length > 0) {
           if (bestMatch.recipient.id === closedChain[0].donorCase.patientID) {
-            // console.log(closedChain[0].donorCase.patientID,closedChain[closedChain.length - 1].patientCase.patientID,"comparison")
             closedChains.push(closedChain);
             closedChain = [];
             return;
@@ -200,7 +261,7 @@ async function createClosedChain(donor, poolOfDonors, poolOfPatients) {
         if (patientDonor) {
           await createClosedChain(patientDonor, poolD, poolP);
         } else {
-          // console.log("impossible!");
+          console.log("something bad happened");
         }
       } else {
         // add back donors and patients to pools
@@ -209,11 +270,9 @@ async function createClosedChain(donor, poolOfDonors, poolOfPatients) {
           poolP.push(item.patient);
         }
         closedChain = [];
-        // console.log("exit reason = no match");
         return;
       }
     } else {
-      // console.log("Donor does not belong to a pair");
       for (const item of closedChain) {
         poolD.push(item.donor);
         poolP.push(item.patient);
@@ -231,94 +290,76 @@ async function createClosedChain(donor, poolOfDonors, poolOfPatients) {
   closedChain = [];
 }
 
-// async function createOpenChain(donor, poolOfDonors) {
-//   var pool = poolOfDonors;
-//   try {
-//     // extract donor case
-//     const donorCaseResults = JSON.parse(
-//       JSON.stringify(
-//         await query(`select * from cases where donorID=${donor.id}`)
-//       )
-//     );
-//     if (donorCaseResults.length === 0) {
-//       const donorCase = donorCaseResults[0];
+async function createDominoChain(donor, poolOfDonors, poolOfPatients) {
+  var poolD = poolOfDonors;
+  var poolP = poolOfPatients;
 
-//       var bestMatch = await getDonorRecipient(donor);
-//       if (bestMatch) {
-//         // extract patient case
-//         const bestMatchCase = JSON.parse(
-//           JSON.stringify(
-//             await query(
-//               `select * from cases where patientID=${bestMatch.recipient.id}`
-//             )
-//           )
-//         );
-//         const patientCase = bestMatchCase[0];
-//         // add pair to chain
-//         closedChain.push({
-//           donor: donor,
-//           patient: bestMatch.recipient,
-//           donorCase: donorCase,
-//           patientCase: patientCase,
-//         });
-//         // remove the donor from pool
-//         pool = pool.filter((poolDonor) => {
-//           return poolDonor.id !== donor.id;
-//         });
-//         // remove patient from pool
-//         patientPool = patientPool.filter((poolPatient) => {
-//           return poolPatient.id !== bestMatch.recipient.id;
-//         });
+  // if donor is not altruistic, get donor case
+  var donorCase = {};
+  if (donor.isAltruistic === 0) {
+    // extract donor case
+    const donorCaseResults = JSON.parse(
+      JSON.stringify(
+        await query(`select * from cases where donorID=${donor.id}`)
+      )
+    );
+    donorCase = donorCaseResults[0];
+  }
 
-//         if (closedChain.length > 0) {
-//           if (bestMatch.recipient.id === closedChain[0].donorCase.patientID) {
-//             // console.log(closedChain[0].donorCase.patientID,closedChain[closedChain.length - 1].patientCase.patientID,"comparison")
-//             console.log("loop closed");
-//             closedChains.push(closedChain);
-//             closedChain = [];
-//             return;
-//           }
-//         }
+  var bestMatch = await getDonorRecipient(donor, poolP);
+  if (bestMatch) {
+    // extract patient case
+    const bestMatchCase = JSON.parse(
+      JSON.stringify(
+        await query(
+          `select * from cases where patientID=${bestMatch.recipient.id}`
+        )
+      )
+    );
 
-//         var patientDonor = pool.find((poolDonor) => {
-//           return poolDonor.id === patientCase.donorID;
-//         });
-//         if (patientDonor) {
-//           await createClosedChain(patientDonor, pool);
-//         } else {
-//           console.log("impossible!");
-//         }
-//       } else {
-//         // add back donors and patients to pools
-//         for (const item of closedChain) {
-//           pool.push(item.donor);
-//           patientPool.push(item.patient);
-//         }
-//         closedChain = [];
-//         console.log("exit reason = no match");
-//         return;
-//       }
-//     } else {
-//       console.log("Donor does not belong to a pair");
-//       for (const item of closedChain) {
-//         pool.push(item.donor);
-//         patientPool.push(item.patient);
-//       }
-//       closedChain = [];
-//       return;
-//     }
-//   } catch (err) {
-//     console.log(err);
-//   }
-//   for (const item of closedChain) {
-//     pool.push(item.donor);
-//     patientPool.push(item.patient);
-//   }
-//   closedChain = [];
-// }
+    const patientCase = bestMatchCase[0];
+    // add pair to chain
+    dominoChain.push({
+      donor: donor,
+      patient: bestMatch.recipient,
+      donorCase: donorCase,
+      patientCase: patientCase,
+    });
+
+    // if (dominoChain.length === 1) {
+    //   // remove the donor from ALTRUISTIC pool
+    //   altruisticDonorPool = altruisticDonorPool.filter((poolDonor) => {
+    //     return poolDonor.id !== donor.id;
+    //   });
+    //   // remove patient from pool
+    //   poolP = poolP.filter((poolPatient) => {
+    //     return poolPatient.id !== dominoChain[0].patient.id;
+    //   });
+    // } else {
+
+    // remove the donor from pool
+    poolD = poolD.filter((poolDonor) => {
+      return poolDonor.id !== donor.id;
+    });
+    // remove patient from pool
+    poolP = poolP.filter((poolPatient) => {
+      return poolPatient.id !== bestMatch.recipient.id;
+    });
+    // }
+
+    // get patient Donor
+    var patientDonor = poolD.find((donor) => {
+      return donor.id === patientCase.donorID;
+    });
+    await createDominoChain(patientDonor, poolD, poolP); //continue creating the chain
+  } else {
+    dominoChains.push(dominoChain);
+    dominoChain = [];
+    return;
+  }
+}
 
 function getPatientsByBloodGroup(bloodGroups, poolP) {
-  // console.log(patientPool,"patientpool")
   return poolP.filter((patient) => {
     for (const bloodGroup of bloodGroups) {
       if (patient) {

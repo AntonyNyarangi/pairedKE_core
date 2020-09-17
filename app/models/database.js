@@ -55,6 +55,7 @@ module.exports = {
       infectionHIV tinyint(1) default 0,
       medicalInsurance tinyint(1) default 0,
       historyBloodClots tinyint(1) default 0,
+      isAltruistic boolean,
       created_at timestamp default current_timestamp
     )`;
     const createUsersTable = `create table if not exists users(
