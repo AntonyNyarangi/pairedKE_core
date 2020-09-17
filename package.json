@@ -4,6 +4,7 @@
   "description": "paired kidney exchange network - core",
   "main": "app.js",
   "scripts": {
+    "start": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Antony Nyarangi",
@@ -12,6 +13,7 @@
     "africastalking": "^0.4.0",
     "bcrypt": "^3.0.7",
     "cors": "^2.8.5",
+    "dotenv": "^8.2.0",
     "express": "^4.16.4",
     "json-rules-engine": "^2.3.5",
     "jsonwebtoken": "^8.5.1",

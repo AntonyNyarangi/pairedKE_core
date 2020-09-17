@@ -1,11 +1,11 @@
+require("dotenv").config();
 var express = require("express");
 var app = express();
 var cors = require("cors");
 var bodyParser = require("body-parser");
 const passport = require("passport");
-const passportStrategies = require("./app/passport_strategies/localStrategy")
-passportStrategies(passport)
-
+const passportStrategies = require("./app/passport_strategies/localStrategy");
+passportStrategies(passport);
 
 port = process.env.PORT || 3001;
 

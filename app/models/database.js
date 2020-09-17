@@ -1,9 +1,9 @@
 let mysql = require("mysql");
 let connection = mysql.createConnection({
-  host: "127.0.0.1",
-  user: "root",
-  password: "password",
-  database: "paired_ke"
+  host: process.env.HOST,
+  user: process.env.DATABASE_USER,
+  password: process.env.DATABASE_PASSWORD,
+  database: process.env.DATABASE
 });
 let database = require("./database");
 
