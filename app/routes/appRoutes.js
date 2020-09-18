@@ -40,7 +40,7 @@ module.exports = function(app) {
     .get(donors.getDonorByID)
     .put(donors.updateDonorByID)
     .delete(donors.removeDonorByID);
-  app.route("/api/donors/getMatches/:donorID").get(donors.getDonorMatchesByID);
+  app.route("/api/matching").get(donors.getMatches);
   
   // case routes
   app

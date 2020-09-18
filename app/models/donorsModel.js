@@ -96,10 +96,10 @@ Donors.removeDonorByID = function removeDonorByID(donorID, result) {
   });
 };
 
-Donors.getDonorMatches = async function getDonorMatches(donorID, matchedPatients) {
+Donors.getMatches = async function getMatches(matchingResults) {
   Matching.ke_chain(function(res) {
     // console.log("Sorted Recipients",res);
-    matchedPatients(res);
+    matchingResults(res);
   });
 };
 

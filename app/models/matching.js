@@ -36,7 +36,8 @@ module.exports = {
       );
 
       // get all directed pairs
-      var directedMatches = await directedPairExchange();
+      var directedMatches = [];
+      directedMatches = await directedPairExchange();
 
       console.log(directedMatches.length, "directed matches");
 
@@ -101,6 +102,7 @@ module.exports = {
 
       for (chain of dominoChains) {
         if (chain.length > longestDominoChain.length) {
+          // console.log(chain,"chain")
           longestDominoChain = chain;
         }
       }
@@ -133,7 +135,7 @@ module.exports = {
       );
 
       console.log(new Date().toISOString());
-      
+
       return callback({
         directedMatches: directedMatches,
         closedChain: longestClosedChain,
@@ -325,17 +327,6 @@ async function createDominoChain(donor, poolOfDonors, poolOfPatients) {
       donorCase: donorCase,
       patientCase: patientCase,
     });
-
-    // if (dominoChain.length === 1) {
-    //   // remove the donor from ALTRUISTIC pool
-    //   altruisticDonorPool = altruisticDonorPool.filter((poolDonor) => {
-    //     return poolDonor.id !== donor.id;
-    //   });
-    //   // remove patient from pool
-    //   poolP = poolP.filter((poolPatient) => {
-    //     return poolPatient.id !== dominoChain[0].patient.id;
-    //   });
-    // } else {
 
     // remove the donor from pool
     poolD = poolD.filter((poolDonor) => {

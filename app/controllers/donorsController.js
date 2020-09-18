@@ -50,8 +50,8 @@ exports.removeDonorByID = function(req, res) {
   });
 };
 
-exports.getDonorMatchesByID = function(req, res) {
-  Donors.getDonorMatches(req.params.donorID, function(err, patients) {
+exports.getMatches = function(req, res) {
+  Donors.getMatches(function(err, patients) {
     if (err) {
       res.send(err);
     }
