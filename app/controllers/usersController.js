@@ -34,7 +34,10 @@ exports.getUserByID = function (req, res) {
 };
 
 exports.updateUserByID = function (req, res) {
-  Users.updateUserByID(new Users(req.body), req.params.userID, function (
+  console.log(req.params.userID)
+  var userDetails = req.body.userDetails;
+  delete userDetails.id;
+  Users.updateUserByID(userDetails, req.params.userID, function (
     err,
     user
   ) {
@@ -79,7 +82,6 @@ exports.login = async (req, res, next) => {
                 console.log(facilities);
                 var healthFacility = JSON.parse(JSON.stringify(facilities[0]));
                 delete user.password;
-                delete user.id;
                 user.healthFacility = healthFacility;
                 var token = jwt.sign(user);
                 console.log(jwt.verify(token));

@@ -4,7 +4,7 @@ const LocalStrategy = require("passport-local").Strategy;
 module.exports = (passport) => {
   passport.use(
     new LocalStrategy(async function (username, password, done) {
-    //   console.log(username, password);
+      username = username.trim();
       try {
         connection.query(
           `select * from users where username = ? or email = '` +

@@ -62,7 +62,7 @@ module.exports = {
       id int primary key auto_increment,
       firstName varchar(30),
       lastName varchar(30),
-      email varchar(30),
+      email varchar(255),
       phoneNumber varchar(12),
       username varchar(30),
       healthFacilityID int(10),

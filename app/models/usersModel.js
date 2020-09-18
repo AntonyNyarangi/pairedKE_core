@@ -37,16 +37,14 @@ Users.registerUser = function registerUser(newUser, result) {
           email:newUser.email
         },
       };
-
-      // var response = await transporter.sendMail(mailOptions);
-      // console.log(response);
       result(null, {message:res.message, id:res.insertId});
     }
   });
 };
 
 Users.updateUserByID = function updateUserByID(user, userID, result) {
-  connection.query(`update users set ? where id = ` + userID, user, function(
+  console.log(user)
+  connection.query(`update users set ? where id = ${userID}`, user, function(
     err,
     res
   ) {
@@ -94,7 +92,7 @@ Users.getUserByID = function getUserByID(userID, result) {
 
 Users.getAllUsers = function getAllUsers(result) {
   connection.query(
-    `select id, firstName, lastName,email,phoneNumber,username from users`,
+    `select users.id, users.firstName, users.lastName,users.email,users.phoneNumber,users.username, users.isAdmin, users.isEnabled,health_facilities.officialName as healthFacility from users join health_facilities on users.healthFacilityID=health_facilities.id order by users.id`,
     function(err, res) {
       if (err) {
         console.log("error: ", err);

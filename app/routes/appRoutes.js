@@ -35,6 +35,8 @@ module.exports = function(app) {
     .get(donors.getAllDonors)
     .post(donors.registerDonor);
 
+  app.route("/api/donors/altruistic").get(donors.getAltruistic);
+
   app
     .route("/api/donors/:donorID")
     .get(donors.getDonorByID)
