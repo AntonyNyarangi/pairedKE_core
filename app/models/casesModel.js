@@ -1,4 +1,7 @@
 // let Patients = require("../models/patientsModel");
+
+const Patients = require("./patientsModel");
+
 // let Donors = require("../models/donorsModel");
 let Cases = function (caseData) {
   (this.healthFacilityID = caseData.healthFacilityID),
@@ -24,10 +27,19 @@ Cases.createCase = function createCase(newCase, result) {
 };
 
 Cases.getAllCases = function getAllCases(params, result) {
+  console.log(params.state);
   connection.query(
-    `select * from cases inner join patients on cases.patientID=patients.id inner join donors on cases.donorID=donors.id inner join health_facilities on cases.healthFacilityID=health_facilities.id ${
+    `select *, cases.id as caseID, patients.isMatched as patientMatched, donors.isMatched as donorMatched from cases inner join patients on cases.patientID=patients.id inner join donors on cases.donorID=donors.id inner join health_facilities on cases.healthFacilityID=health_facilities.id ${
       Object.keys(params).length > 0
-        ? `where ${params.state? `isActive=${params.state}` : ``}`
+        ? `where ${
+            params.state === "1"
+              ? `patients.isMatched=1 AND donors.isMatched=1`
+              : params.state === "2"
+              ? `patients.isMatched=1 AND donors.isMatched=0`
+              : params.state === "3"
+              ? `patients.isMatched=0 AND donors.isMatched=0`
+              : ``
+          }`
         : ``
     }`,
     function (err, res) {

@@ -3,6 +3,9 @@ let patients = require("../controllers/patientsController");
 let users = require("../controllers/usersController");
 let health_facilities = require("../controllers/health_facilitiesController");
 let cases = require("../controllers/casesController");
+let dashboard = require("../controllers/dashboardController");
+let matchRuns = require("../controllers/matchRuns.js");
+
 
 module.exports = function(app) {
   // health facility Routes
@@ -43,6 +46,7 @@ module.exports = function(app) {
     .put(donors.updateDonorByID)
     .delete(donors.removeDonorByID);
   app.route("/api/matching").get(donors.getMatches);
+  app.route("/api/getMatches/:runID").get(donors.getDBMatches);
   
   // case routes
   app
@@ -68,4 +72,7 @@ module.exports = function(app) {
     .delete(users.removeUserByID);
   app.route("/api/users/login/").post(users.login);
   app.route("/api/users/logout/:userID").post(users.logout);
+  // dashboard routes
+  app.route("/api/dashboard").get(dashboard.getData);
+  app.route("/api/matchRuns").get(matchRuns.getRuns);
 };

@@ -3,14 +3,14 @@ let connection = mysql.createConnection({
   host: process.env.HOST,
   user: process.env.DATABASE_USER,
   password: process.env.DATABASE_PASSWORD,
-  database: process.env.DATABASE
+  database: process.env.DATABASE,
 });
 let database = require("./database");
 
 module.exports = {
   createConnection: () => {
     // connect to MySQL database
-    connection.connect(function(err) {
+    connection.connect(function (err) {
       if (err) {
         return console.error("error: " + err.message);
       }
@@ -29,6 +29,7 @@ module.exports = {
       age int(3),
       weight int(3),
       height int(3),
+      isMatched boolean not null default false,
       created_at timestamp default current_timestamp
     )`;
     //donor table definition
@@ -56,6 +57,7 @@ module.exports = {
       medicalInsurance tinyint(1) default 0,
       historyBloodClots tinyint(1) default 0,
       isAltruistic boolean,
+      isMatched boolean not null default false,
       created_at timestamp default current_timestamp
     )`;
     const createUsersTable = `create table if not exists users(
@@ -98,46 +100,117 @@ module.exports = {
       patientID int(10),
       donorID int(10),
       isActive boolean,  
-      created_at timestamp default current_timestamp,
+      created_at datetime default current_timestamp,
       FOREIGN KEY (patientID) references patients(id),
       FOREIGN KEY (donorID) references donors(id),
       FOREIGN KEY (healthFacilityID) references health_facilities(id)
     )`;
+    const createMatchingRunsTable = `create table if not exists matching_runs(
+      id int primary key auto_increment,
+      date DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`;
+    const createDirectedMatchesTable = `create table if not exists directed_matches(
+      id int primary key auto_increment,
+      matchingRunID int(5) NOT NULL,
+      donorID int(5) NOT NULL,
+      donorCaseID int(5) NOT NULL,      
+      patientID int(5) NOT NULL,
+      patientCaseID int(5) NOT NULL,
+      FOREIGN KEY (patientID) references patients(id),
+      FOREIGN KEY (donorID) references donors(id),
+      FOREIGN KEY (matchingRunID) references matching_runs(id),
+      FOREIGN KEY (donorCaseID) references cases(id),
+      FOREIGN KEY (patientCaseID) references cases(id)
+    )`;
+    const createClosedMatchesTable = `create table if not exists closed_matches(
+      id int primary key auto_increment,
+      matchingRunID int(5) NOT NULL,
+      donorID int(5) NOT NULL,
+      donorCaseID int(5) NOT NULL,      
+      patientID int(5) NOT NULL,
+      patientCaseID int(5) NOT NULL,
+      FOREIGN KEY (patientID) references patients(id),
+      FOREIGN KEY (donorID) references donors(id),
+      FOREIGN KEY (matchingRunID) references matching_runs(id),
+      FOREIGN KEY (donorCaseID) references cases(id),
+      FOREIGN KEY (patientCaseID) references cases(id)
+    )`;
+    const createDominoMatchesTable = `create table if not exists domino_matches(
+      id int primary key auto_increment,
+      matchingRunID int(5) NOT NULL,
+      donorID int(5) NOT NULL,
+      donorCaseID int(5),      
+      patientID int(5) NOT NULL,
+      patientCaseID int(5) NOT NULL,
+      FOREIGN KEY (patientID) references patients(id),
+      FOREIGN KEY (donorID) references donors(id),
+      FOREIGN KEY (matchingRunID) references matching_runs(id),
+      FOREIGN KEY (donorCaseID) references cases(id),
+      FOREIGN KEY (patientCaseID) references cases(id)
+    )`;
 
     //create patients table
-    connection.query(createPatientsTable, function(err) {
+    connection.query(createPatientsTable, function (err) {
       if (err) {
         console.log(err.message);
       }
       console.log("Created patients table");
     });
     //create donors table
-    connection.query(createDonorsTable, function(err) {
+    connection.query(createDonorsTable, function (err) {
       if (err) {
         console.log(err.message);
       }
       console.log("Created donors table");
     });
     //create health facilities table
-    connection.query(createHealthFacilitiesTable, function(err) {
+    connection.query(createHealthFacilitiesTable, function (err) {
       if (err) {
         console.log(err.message);
       }
-      console.log("Created health facilities table");
+      console.log("Created health_facilities table");
     });
     //create users table
-    connection.query(createUsersTable, function(err) {
+    connection.query(createUsersTable, function (err) {
       if (err) {
         console.log(err.message);
       }
       console.log("Created users table");
     });
     //create cases table
-    connection.query(createCasesTable, function(err) {
+    connection.query(createCasesTable, function (err) {
       if (err) {
         console.log(err.message);
       }
       console.log("Created cases table");
     });
-  }
+    //create matching runs table
+    connection.query(createMatchingRunsTable, function (err) {
+      if (err) {
+        console.log(err.message);
+      }
+      console.log("Created matching_runs table");
+    });
+    //create match results table
+    connection.query(createDirectedMatchesTable, function (err) {
+      if (err) {
+        console.log(err.message);
+      }
+      console.log("Created directed_matches table");
+    });
+    //create match results table
+    connection.query(createClosedMatchesTable, function (err) {
+      if (err) {
+        console.log(err.message);
+      }
+      console.log("Created closed_matches table");
+    });
+    //create match results table
+    connection.query(createDominoMatchesTable, function (err) {
+      if (err) {
+        console.log(err.message);
+      }
+      console.log("Created domino_matches table");
+    });
+  },
 };
